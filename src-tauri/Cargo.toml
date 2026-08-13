@@ -1,6 +1,6 @@
 [package]
 name = "anydoc-app"
-version = "0.1.0"
+version = "0.1.1"
 description = "Desktop GUI for converting Office/PDF/EPUB documents to Markdown"
 authors = ["CDCargo"]
 edition = "2021"

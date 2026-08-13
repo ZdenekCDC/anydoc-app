@@ -36,7 +36,11 @@ Download the installer/binary for your platform from the
 [Releases](../../releases) page:
 
 - **Linux**: `.deb`, `.rpm`, or `.AppImage`
-- **Windows**: `.msi` or `.exe` (NSIS)
+- **Windows**: `.msi` or `.exe` (NSIS) installer, or the `-portable.exe`
+  build - a single file, no install, no registry changes, no admin rights.
+  It relies on WebView2 Runtime already being present (it ships with
+  Windows 10/11 by default); the installers can provision it if it's
+  missing, the portable build cannot.
 - **macOS**: `.dmg`
 
 The binaries are **not code-signed**; on first run you may need to allow

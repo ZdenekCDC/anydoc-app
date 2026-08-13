@@ -61,3 +61,25 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+      # The raw binary needs no installer and writes nothing to the
+      # registry, so it doubles as a "portable" build - upload it
+      # alongside the NSIS/MSI installers for users who can't or don't
+      # want to install. Unlike the installers, it won't offer to
+      # provision WebView2 Runtime if that's missing on the target machine.
+      - name: Package portable Windows binary
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          cp src-tauri/target/release/anydoc-app.exe "anydoc-app_${version}_x64-portable.exe"
+
+      - name: Upload portable Windows binary
+        if: matrix.os == 'windows-latest'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          gh release upload "${GITHUB_REF_NAME}" "anydoc-app_${version}_x64-portable.exe" \
+            --repo "${{ github.repository }}" --clobber
