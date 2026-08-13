@@ -2,9 +2,7 @@
 
 Desktop GUI that converts Office/PDF/EPUB documents to Markdown, built on
 [Tauri](https://tauri.app/) 2.x. The Rust backend links the
-[`anydoc`](https://crates.io/crates/anydoc) crate directly - no CLI
-subprocess - the same way
-[`anydoc-cli`](https://github.com/ZdenekCDC/anydoc-cli) does.
+[`anydoc`](https://crates.io/crates/anydoc) crate directly.
 
 This is an independent, unofficial wrapper. All document conversion is
 performed by the `anydoc` crate (MIT licensed) - see
@@ -30,7 +28,7 @@ project is not affiliated with Firecrawl.
 ## Supported formats
 
 `doc`, `docx`, `odt`, `pdf`, `ppt`, `pptx`, `rtf`, `epub`, `xls`, `xlsx`,
-`ods`, `odp`, `csv` (same list as `anydoc-cli`).
+`ods`, `odp`, `csv`.
 
 ## Install
 
