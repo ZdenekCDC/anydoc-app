@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>anydoc-app</title>
+    <script type="module" src="/main.js" defer></script>
+  </head>
+
+  <body>
+    <main class="app" id="dropzone">
+      <header class="toolbar">
+        <button id="open-btn" type="button"></button>
+        <button id="save-btn" type="button" disabled></button>
+        <button id="copy-btn" type="button" disabled></button>
+        <span class="hint" id="drop-hint"></span>
+        <select id="locale-select" aria-label="Language / Jazyk">
+          <option value="cs">Čeština</option>
+          <option value="en">English</option>
+        </select>
+      </header>
+
+      <div id="error-banner" class="error-banner" hidden></div>
+
+      <section id="empty-state" class="empty-state">
+        <p id="empty-state-text"></p>
+      </section>
+
+      <section id="single-result" class="panes" hidden>
+        <div class="pane">
+          <h2 id="pane-markdown-title"></h2>
+          <textarea id="markdown-view" spellcheck="false"></textarea>
+        </div>
+        <div class="pane">
+          <h2 id="pane-preview-title"></h2>
+          <div id="html-view" class="html-view"></div>
+        </div>
+      </section>
+
+      <section id="batch-result" class="batch" hidden>
+        <div class="batch-progress">
+          <progress id="batch-progress-bar" max="1" value="0"></progress>
+          <span id="batch-progress-label"></span>
+        </div>
+        <table class="batch-table">
+          <thead>
+            <tr>
+              <th id="batch-table-file-header"></th>
+              <th id="batch-table-result-header"></th>
+            </tr>
+          </thead>
+          <tbody id="batch-table-body"></tbody>
+        </table>
+        <p id="batch-summary" class="batch-summary"></p>
+      </section>
+
+      <div id="drop-overlay" class="drop-overlay" hidden></div>
+    </main>
+  </body>
+</html>
