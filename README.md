@@ -14,7 +14,9 @@ project is not affiliated with Firecrawl.
 - Open a file via the native dialog (multi-select) or drag & drop, single or
   multiple files at once.
 - Async conversion on the Rust backend, with a raw Markdown pane and a
-  rendered HTML preview side by side.
+  rendered HTML preview side by side. The preview style is switchable
+  (Editorial/serif, GitHub, Docs, Notion, Plain - defaults to Editorial) and
+  the choice is remembered between sessions.
 - "Save as..." (native dialog) or copy the Markdown to the clipboard.
 - Batch conversion: each file is saved as `<name>.md` next to its source. A
   failure on one file never aborts the batch; you get a per-file OK/failed

@@ -1,16 +1,25 @@
 export default {
   toolbar: {
     open: "Open file...",
+    reset: "Back to start",
     save: "Save as...",
     copy: "Copy to clipboard",
     dropHint: "or drag & drop file(s) into the window",
   },
   emptyState: {
+    headline: "Drag files here...",
     supported: "Supported formats: {list}",
   },
   pane: {
     markdown: "Markdown",
     preview: "Preview",
+  },
+  previewTheme: {
+    editorial: "Editorial (serif)",
+    github: "GitHub",
+    docs: "Docs",
+    notion: "Notion",
+    current: "Plain",
   },
   dropOverlay: "Drop to convert",
   batch: {

@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<title>Preview theme demo</title>
+<style>
+  :root {
+    --chrome-bg: #f3f3f5;
+    --chrome-border: #d7d7dc;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--chrome-bg);
+  }
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--chrome-border);
+    background: #fff;
+    flex-wrap: wrap;
+  }
+  .toolbar strong { margin-right: 8px; }
+  .toolbar button {
+    padding: 6px 12px;
+    border: 1px solid var(--chrome-border);
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .toolbar button.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+  }
+  .stage {
+    height: calc(100% - 53px);
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+  }
+  .sheet {
+    background: #fff;
+    max-width: 760px;
+    width: 100%;
+    border: 1px solid var(--chrome-border);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+
+  /* ---------- theme: current (baseline app style) ---------- */
+  .theme-current .sheet { padding: 12px; font-family: inherit; font-size: 14px; line-height: 1.5; color: #111; }
+  .theme-current h1, .theme-current h2, .theme-current h3 { margin-top: 1em; }
+  .theme-current table { border-collapse: collapse; }
+  .theme-current th, .theme-current td { border: 1px solid #ccc; padding: 4px 8px; }
+  .theme-current pre { background: #f5f5f5; padding: 8px; overflow: auto; }
+  .theme-current code { background: #f0f0f0; padding: 1px 4px; border-radius: 3px; }
+  .theme-current blockquote { border-left: 3px solid #ccc; margin: 0; padding-left: 12px; color: #555; }
+
+  /* ---------- theme: github ---------- */
+  .theme-github .sheet {
+    padding: 32px 40px;
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1f2328;
+  }
+  .theme-github h1, .theme-github h2 {
+    border-bottom: 1px solid #d8dee4;
+    padding-bottom: .3em;
+  }
+  .theme-github h1 { font-size: 1.8em; }
+  .theme-github h2 { font-size: 1.4em; margin-top: 1.4em; }
+  .theme-github h3 { font-size: 1.15em; margin-top: 1.2em; }
+  .theme-github a { color: #0969da; text-decoration: none; }
+  .theme-github a:hover { text-decoration: underline; }
+  .theme-github code {
+    background: rgba(175,184,193,.2);
+    padding: .15em .35em;
+    border-radius: 5px;
+    font-size: 85%;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  .theme-github pre {
+    background: #f6f8fa;
+    padding: 14px;
+    border-radius: 8px;
+    overflow: auto;
+    line-height: 1.45;
+  }
+  .theme-github pre code { background: none; padding: 0; }
+  .theme-github blockquote {
+    margin: 0;
+    padding: 0 1em;
+    color: #59636e;
+    border-left: .25em solid #d8dee4;
+  }
+  .theme-github table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  .theme-github th, .theme-github td { border: 1px solid #d8dee4; padding: 6px 12px; }
+  .theme-github tr:nth-child(2n) { background: #f6f8fa; }
+  .theme-github hr { border: none; border-top: 1px solid #d8dee4; margin: 1.5em 0; }
+
+  /* ---------- theme: editorial (serif, book-like) ---------- */
+  .theme-editorial .sheet {
+    padding: 48px 56px;
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.75;
+    color: #2b2b2b;
+  }
+  .theme-editorial h1 { font-size: 2em; font-weight: 700; margin-bottom: .2em; }
+  .theme-editorial h2 { font-size: 1.4em; margin-top: 1.6em; font-weight: 600; }
+  .theme-editorial h3 { font-size: 1.15em; margin-top: 1.4em; font-style: italic; font-weight: 600; }
+  .theme-editorial p { margin: 0 0 1.1em; }
+  .theme-editorial a { color: #8a3324; text-decoration: underline; }
+  .theme-editorial blockquote {
+    margin: 1.4em 0;
+    padding-left: 1em;
+    border-left: 3px solid #c9a227;
+    font-style: italic;
+    color: #555;
+  }
+  .theme-editorial code {
+    font-family: "SF Mono", Consolas, monospace;
+    background: #f2ede4;
+    padding: .1em .3em;
+    border-radius: 3px;
+    font-size: 90%;
+  }
+  .theme-editorial pre {
+    background: #f2ede4;
+    padding: 16px;
+    border-radius: 4px;
+    overflow: auto;
+  }
+  .theme-editorial table { border-collapse: collapse; width: 100%; margin: 1.4em 0; font-size: .95em; }
+  .theme-editorial th, .theme-editorial td { border-bottom: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+  .theme-editorial th { border-bottom: 2px solid #2b2b2b; }
+  .theme-editorial hr { border: none; border-top: 1px solid #ddd; margin: 2em 0; }
+
+  /* ---------- theme: compact-docs ---------- */
+  .theme-docs .sheet {
+    padding: 20px 28px;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #1a1a1a;
+  }
+  .theme-docs h1 { font-size: 1.5em; color: #0f172a; border-left: 4px solid #2563eb; padding-left: 10px; margin: 0 0 .6em; }
+  .theme-docs h2 { font-size: 1.2em; color: #0f172a; margin-top: 1.5em; }
+  .theme-docs h3 { font-size: 1em; text-transform: uppercase; letter-spacing: .04em; color: #475569; margin-top: 1.2em; }
+  .theme-docs a { color: #2563eb; }
+  .theme-docs code {
+    background: #eef2ff;
+    color: #3730a3;
+    padding: .1em .35em;
+    border-radius: 3px;
+    font-size: 90%;
+    font-family: "JetBrains Mono", Consolas, monospace;
+  }
+  .theme-docs pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px 14px;
+    border-radius: 6px;
+    overflow: auto;
+    font-size: 12.5px;
+  }
+  .theme-docs pre code { background: none; color: inherit; padding: 0; }
+  .theme-docs blockquote {
+    margin: 0;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-left: 3px solid #94a3b8;
+    color: #334155;
+  }
+  .theme-docs table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92em; }
+  .theme-docs th { background: #f1f5f9; text-align: left; }
+  .theme-docs th, .theme-docs td { border: 1px solid #e2e8f0; padding: 6px 10px; }
+  .theme-docs hr { border: none; border-top: 1px dashed #cbd5e1; margin: 1.6em 0; }
+
+  /* ---------- theme: notion-like minimal ---------- */
+  .theme-notion .sheet {
+    padding: 60px 72px;
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: #37352f;
+  }
+  .theme-notion h1 { font-size: 2.1em; font-weight: 700; margin: 0 0 .3em; }
+  .theme-notion h2 { font-size: 1.5em; font-weight: 700; margin-top: 1.5em; }
+  .theme-notion h3 { font-size: 1.2em; font-weight: 700; margin-top: 1.3em; }
+  .theme-notion a { color: inherit; text-decoration: underline; text-decoration-color: rgba(55,53,47,.3); }
+  .theme-notion code {
+    background: rgba(135,131,120,.15);
+    color: #eb5757;
+    padding: .15em .4em;
+    border-radius: 4px;
+    font-size: 85%;
+    font-family: "SF Mono", Consolas, monospace;
+  }
+  .theme-notion pre {
+    background: #f7f6f3;
+    padding: 16px;
+    border-radius: 6px;
+    overflow: auto;
+  }
+  .theme-notion pre code { background: none; color: #37352f; }
+  .theme-notion blockquote {
+    margin: 1em 0;
+    padding-left: 14px;
+    border-left: 3px solid #37352f;
+    color: #37352f;
+  }
+  .theme-notion table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  .theme-notion th, .theme-notion td { border: 1px solid #e9e9e7; padding: 7px 10px; }
+  .theme-notion th { background: #f7f6f3; }
+  .theme-notion hr { border: none; border-top: 1px solid #e9e9e7; margin: 1.8em 0; }
+</style>
+</head>
+<body class="theme-github">
+  <div class="toolbar">
+    <strong>Preview téma:</strong>
+    <button data-theme="current">Current (app)</button>
+    <button data-theme="github">GitHub</button>
+    <button data-theme="editorial">Editorial (serif)</button>
+    <button data-theme="docs">Compact docs</button>
+    <button data-theme="notion">Notion-like</button>
+  </div>
+  <div class="stage">
+    <div class="sheet" id="content">
+      <h1>Zpráva o kvartálních výsledcích</h1>
+      <p>Toto je ukázkový dokument, který simuluje výstup převodu <strong>Office/PDF/EPUB</strong> na Markdown a jeho následné vykreslení do HTML pomocí <code>pulldown-cmark</code>. Obsahuje typické prvky: <em>zvýraznění</em>, odkazy a <code>inline kód</code>.</p>
+
+      <h2>Shrnutí</h2>
+      <p>Tržby meziročně vzrostly o 12&nbsp;%, díky expanzi na nové trhy a <a href="https://example.com">optimalizaci nákladů</a>. Níže je přehled klíčových metrik.</p>
+
+      <blockquote>
+        <p>„Kvalita převodu dokumentu je jen tak dobrá, jak dobře vypadá výsledný náhled.“ — interní poznámka týmu</p>
+      </blockquote>
+
+      <h3>Klíčové metriky</h3>
+      <table>
+        <thead>
+          <tr><th>Metrika</th><th>Q1</th><th>Q2</th><th>Trend</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Tržby (mil. Kč)</td><td>124</td><td>139</td><td>▲</td></tr>
+          <tr><td>Náklady (mil. Kč)</td><td>98</td><td>101</td><td>▲</td></tr>
+          <tr><td>Marže</td><td>21 %</td><td>27 %</td><td>▲</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Další kroky</h3>
+      <ul>
+        <li>Dokončit migraci datového skladu</li>
+        <li>Rozšířit tým podpory
+          <ul>
+            <li>2 nové pozice v Praze</li>
+            <li>1 pozice remote</li>
+          </ul>
+        </li>
+        <li>Vyhodnotit dodavatele č. 3</li>
+      </ul>
+
+      <ol>
+        <li>Schválit rozpočet na Q3</li>
+        <li>Podepsat smlouvu s partnerem</li>
+        <li>Publikovat report akcionářům</li>
+      </ol>
+
+      <h3>Ukázka kódu</h3>
+      <pre><code>fn markdown_to_html(markdown: &amp;str) -&gt; String {
+    let parser = pulldown_cmark::Parser::new(markdown);
+    let mut html = String::new();
+    pulldown_cmark::html::push_html(&amp;mut html, parser);
+    html
+}
+</code></pre>
+
+      <hr />
+      <p>Konec dokumentu. Vygenerováno automaticky, poslední revize <code>2026-08-25</code>.</p>
+    </div>
+  </div>
+
+  <script>
+    const buttons = document.querySelectorAll(".toolbar button");
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.body.className = "theme-" + btn.dataset.theme;
+        buttons.forEach(b => b.classList.toggle("active", b === btn));
+      });
+    });
+    document.querySelector('[data-theme="github"]').classList.add("active");
+  </script>
+</body>
+</html>

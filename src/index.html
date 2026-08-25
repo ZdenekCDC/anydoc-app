@@ -12,9 +12,11 @@
     <main class="app" id="dropzone">
       <header class="toolbar">
         <button id="open-btn" type="button"></button>
+        <button id="reset-btn" type="button" disabled></button>
         <button id="save-btn" type="button" disabled></button>
         <button id="copy-btn" type="button" disabled></button>
         <span class="hint" id="drop-hint"></span>
+        <select id="preview-theme-select" aria-label="Preview style"></select>
         <select id="locale-select" aria-label="Language / Jazyk">
           <option value="cs">Čeština</option>
           <option value="en">English</option>
@@ -24,6 +26,7 @@
       <div id="error-banner" class="error-banner" hidden></div>
 
       <section id="empty-state" class="empty-state">
+        <p id="empty-state-headline" class="empty-state-headline"></p>
         <p id="empty-state-text"></p>
       </section>
 

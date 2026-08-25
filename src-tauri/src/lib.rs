@@ -66,7 +66,11 @@ fn validate_input(path: &str) -> Result<(), AppError> {
 }
 
 fn markdown_to_html(markdown: &str) -> String {
-    let parser = pulldown_cmark::Parser::new(markdown);
+    let options = pulldown_cmark::Options::ENABLE_TABLES
+        | pulldown_cmark::Options::ENABLE_STRIKETHROUGH
+        | pulldown_cmark::Options::ENABLE_TASKLISTS
+        | pulldown_cmark::Options::ENABLE_FOOTNOTES;
+    let parser = pulldown_cmark::Parser::new_ext(markdown, options);
     let mut html = String::new();
     pulldown_cmark::html::push_html(&mut html, parser);
     html

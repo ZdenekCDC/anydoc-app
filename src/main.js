@@ -10,6 +10,22 @@ const els = {};
 let currentSingle = null; // { path, markdown, html }
 let supportedExtensions = [];
 
+const PREVIEW_THEMES = ["editorial", "github", "docs", "notion", "current"];
+const DEFAULT_PREVIEW_THEME = "editorial";
+const PREVIEW_THEME_STORAGE_KEY = "anydoc-app.previewTheme";
+
+function getPreviewTheme() {
+  const stored = localStorage.getItem(PREVIEW_THEME_STORAGE_KEY);
+  return PREVIEW_THEMES.includes(stored) ? stored : DEFAULT_PREVIEW_THEME;
+}
+
+function setPreviewTheme(theme) {
+  if (!PREVIEW_THEMES.includes(theme)) return;
+  localStorage.setItem(PREVIEW_THEME_STORAGE_KEY, theme);
+  els.htmlView.classList.remove(...PREVIEW_THEMES.map((name) => `theme-${name}`));
+  els.htmlView.classList.add(`theme-${theme}`);
+}
+
 function q(id) {
   return document.getElementById(id);
 }
@@ -28,6 +44,7 @@ function showView(view) {
   els.emptyState.hidden = view !== "empty";
   els.singleResult.hidden = view !== "single";
   els.batchResult.hidden = view !== "batch";
+  els.resetBtn.disabled = view === "empty";
 }
 
 function fileNameOf(path) {
@@ -37,9 +54,11 @@ function fileNameOf(path) {
 function applyTranslations() {
   document.documentElement.lang = getLocale();
   els.openBtn.textContent = t("toolbar.open");
+  els.resetBtn.textContent = t("toolbar.reset");
   els.saveBtn.textContent = t("toolbar.save");
   els.copyBtn.textContent = t("toolbar.copy");
   els.dropHint.textContent = t("toolbar.dropHint");
+  els.emptyStateHeadline.textContent = t("emptyState.headline");
   els.emptyStateText.textContent = t("emptyState.supported", { list: supportedExtensions.join(", ") });
   els.paneMarkdownTitle.textContent = t("pane.markdown");
   els.panePreviewTitle.textContent = t("pane.preview");
@@ -47,6 +66,11 @@ function applyTranslations() {
   els.batchTableFileHeader.textContent = t("batch.tableFile");
   els.batchTableResultHeader.textContent = t("batch.tableResult");
   els.localeSelect.value = getLocale();
+
+  for (const option of els.previewThemeSelect.options) {
+    option.textContent = t(`previewTheme.${option.value}`);
+  }
+  els.previewThemeSelect.value = getPreviewTheme();
 }
 
 async function handlePaths(paths) {
@@ -137,6 +161,18 @@ async function convertBatch(paths) {
   }
 }
 
+function onResetClick() {
+  currentSingle = null;
+  els.saveBtn.disabled = true;
+  els.copyBtn.disabled = true;
+  els.markdownView.value = "";
+  els.htmlView.innerHTML = "";
+  els.batchTableBody.innerHTML = "";
+  els.batchSummary.textContent = "";
+  clearError();
+  showView("empty");
+}
+
 async function onOpenClick() {
   clearError();
   const selection = await openDialog({
@@ -179,6 +215,10 @@ async function onLocaleChange() {
   applyTranslations();
 }
 
+function onPreviewThemeChange() {
+  setPreviewTheme(els.previewThemeSelect.value);
+}
+
 function setupDragAndDrop() {
   listen("tauri://drag-enter", () => {
     els.dropOverlay.hidden = false;
@@ -196,12 +236,14 @@ function setupDragAndDrop() {
 window.addEventListener("DOMContentLoaded", async () => {
   els.errorBanner = q("error-banner");
   els.emptyState = q("empty-state");
+  els.emptyStateHeadline = q("empty-state-headline");
   els.emptyStateText = q("empty-state-text");
   els.singleResult = q("single-result");
   els.batchResult = q("batch-result");
   els.markdownView = q("markdown-view");
   els.htmlView = q("html-view");
   els.openBtn = q("open-btn");
+  els.resetBtn = q("reset-btn");
   els.saveBtn = q("save-btn");
   els.copyBtn = q("copy-btn");
   els.dropHint = q("drop-hint");
@@ -215,11 +257,21 @@ window.addEventListener("DOMContentLoaded", async () => {
   els.paneMarkdownTitle = q("pane-markdown-title");
   els.panePreviewTitle = q("pane-preview-title");
   els.localeSelect = q("locale-select");
+  els.previewThemeSelect = q("preview-theme-select");
 
   els.openBtn.addEventListener("click", onOpenClick);
+  els.resetBtn.addEventListener("click", onResetClick);
   els.saveBtn.addEventListener("click", onSaveClick);
   els.copyBtn.addEventListener("click", onCopyClick);
   els.localeSelect.addEventListener("change", onLocaleChange);
+  els.previewThemeSelect.addEventListener("change", onPreviewThemeChange);
+
+  for (const theme of PREVIEW_THEMES) {
+    const option = document.createElement("option");
+    option.value = theme;
+    els.previewThemeSelect.appendChild(option);
+  }
+  setPreviewTheme(getPreviewTheme());
 
   supportedExtensions = await invoke("supported_extensions");
 

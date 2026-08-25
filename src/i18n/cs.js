@@ -1,16 +1,25 @@
 export default {
   toolbar: {
     open: "Otevřít soubor...",
+    reset: "Zpět na start",
     save: "Uložit jako...",
     copy: "Zkopírovat do schránky",
     dropHint: "nebo přetáhněte soubor(y) do okna",
   },
   emptyState: {
+    headline: "Přetáhni sem soubory...",
     supported: "Podporované formáty: {list}",
   },
   pane: {
     markdown: "Markdown",
     preview: "Náhled",
+  },
+  previewTheme: {
+    editorial: "Editorial (serif)",
+    github: "GitHub",
+    docs: "Dokumentace",
+    notion: "Notion",
+    current: "Jednoduchý",
   },
   dropOverlay: "Pustit pro konverzi",
   batch: {
