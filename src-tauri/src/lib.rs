@@ -22,6 +22,14 @@ enum AppError {
         extension: Option<String>,
         supported: Vec<&'static str>,
     },
+    /// The PDF has scanned or image-only pages. anydoc does no OCR and
+    /// refuses the whole document rather than return it with pages missing.
+    NeedsOcr {
+        path: String,
+        /// 1-indexed pages that need OCR, ascending.
+        pages: Vec<u32>,
+        page_count: u32,
+    },
     ConversionFailed {
         path: String,
         detail: String,
@@ -65,6 +73,15 @@ fn validate_input(path: &str) -> Result<(), AppError> {
     }
 }
 
+fn conversion_error(path: &str, err: anydoc::ConvertError) -> AppError {
+    match err {
+        anydoc::ConvertError::NeedsOcr { pages, page_count } => {
+            AppError::NeedsOcr { path: path.to_string(), pages, page_count }
+        }
+        other => AppError::ConversionFailed { path: path.to_string(), detail: other.to_string() },
+    }
+}
+
 fn markdown_to_html(markdown: &str) -> String {
     let options = pulldown_cmark::Options::ENABLE_TABLES
         | pulldown_cmark::Options::ENABLE_STRIKETHROUGH
@@ -89,10 +106,7 @@ struct ConvertedDocument {
 async fn convert_document(path: String) -> Result<ConvertedDocument, AppError> {
     validate_input(&path)?;
     tauri::async_runtime::spawn_blocking(move || {
-        let markdown = anydoc::to_markdown(&path).map_err(|err| AppError::ConversionFailed {
-            path: path.clone(),
-            detail: err.to_string(),
-        })?;
+        let markdown = anydoc::to_markdown(&path).map_err(|err| conversion_error(&path, err))?;
         let html = markdown_to_html(&markdown);
         Ok(ConvertedDocument { path, markdown, html })
     })
@@ -149,10 +163,7 @@ fn convert_and_write_one(path: &str) -> Result<String, AppError> {
     validate_input(path)?;
 
     let src = Path::new(path);
-    let markdown = anydoc::to_markdown(src).map_err(|err| AppError::ConversionFailed {
-        path: path.to_string(),
-        detail: err.to_string(),
-    })?;
+    let markdown = anydoc::to_markdown(src).map_err(|err| conversion_error(path, err))?;
 
     let out_path = src.with_extension("md");
     fs::write(&out_path, markdown).map_err(|err| AppError::WriteFailed {
@@ -272,5 +283,84 @@ mod tests {
         assert!(err_result.is_err());
 
         std::fs::remove_dir_all(&tmp).unwrap();
+    }
+    /// Builds a one-page PDF whose only content is an 8x8 grey image, i.e.
+    /// a page with no text layer, the shape of a scanned page.
+    fn image_only_pdf() -> Vec<u8> {
+        let pixels = vec![0x80u8; 8 * 8];
+        let content = b"q 200 0 0 200 100 500 cm /Im0 Do Q";
+        let objects: Vec<Vec<u8>> = vec![
+            b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
+            b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_vec(),
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] \
+              /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>"
+                .to_vec(),
+            [format!("<< /Length {} >>\nstream\n", content.len()).as_bytes(), content, b"\nendstream"]
+                .concat(),
+            [
+                format!(
+                    "<< /Type /XObject /Subtype /Image /Width 8 /Height 8 \
+                     /ColorSpace /DeviceGray /BitsPerComponent 8 /Length {} >>\nstream\n",
+                    pixels.len()
+                )
+                .as_bytes(),
+                &pixels,
+                b"\nendstream",
+            ]
+            .concat(),
+        ];
+
+        let mut pdf = b"%PDF-1.4\n".to_vec();
+        let mut offsets = Vec::new();
+        for (i, body) in objects.iter().enumerate() {
+            offsets.push(pdf.len());
+            pdf.extend_from_slice(format!("{} 0 obj\n", i + 1).as_bytes());
+            pdf.extend_from_slice(body);
+            pdf.extend_from_slice(b"\nendobj\n");
+        }
+        let xref = pdf.len();
+        pdf.extend_from_slice(format!("xref\n0 {}\n0000000000 65535 f \n", objects.len() + 1).as_bytes());
+        for offset in offsets {
+            pdf.extend_from_slice(format!("{offset:010} 00000 n \n").as_bytes());
+        }
+        pdf.extend_from_slice(
+            format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n", objects.len() + 1)
+                .as_bytes(),
+        );
+        pdf
+    }
+
+    #[test]
+    fn scanned_pdf_reports_needs_ocr_with_pages() {
+        let tmp = std::env::temp_dir().join(format!("anydoc-app-ocr-test-{}", std::process::id()));
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = tmp.join("scan.pdf");
+        std::fs::write(&path, image_only_pdf()).unwrap();
+
+        let err = convert_and_write_one(path.to_str().unwrap()).unwrap_err();
+        let md_written = path.with_extension("md").exists();
+        std::fs::remove_dir_all(&tmp).unwrap();
+
+        match err {
+            AppError::NeedsOcr { pages, page_count, .. } => {
+                assert_eq!(pages, vec![1]);
+                assert_eq!(page_count, 1);
+            }
+            other => panic!("expected NeedsOcr, got {other:?}"),
+        }
+        assert!(!md_written, "no partial .md may be written for a scanned PDF");
+    }
+
+    #[test]
+    fn needs_ocr_serializes_for_frontend() {
+        let err = conversion_error(
+            "scan.pdf",
+            anydoc::ConvertError::NeedsOcr { pages: vec![2, 3], page_count: 5 },
+        );
+        let json = serde_json::to_value(&err).unwrap();
+        assert_eq!(
+            json,
+            serde_json::json!({ "kind": "needs_ocr", "path": "scan.pdf", "pages": [2, 3], "page_count": 5 })
+        );
     }
 }

@@ -38,6 +38,10 @@ export default {
       "Nepodporovaná přípona '{extension}' souboru {path}. Podporované formáty jsou: {supported}.",
     unsupportedExtensionUnknown:
       "Soubor {path} nemá příponu. Podporované formáty jsou: {supported}.",
+    needsOcrAll:
+      "Soubor {path} je celý naskenovaný (počet stran: {pageCount}, žádná nemá textovou vrstvu) a vyžaduje OCR, které aplikace nepodporuje.",
+    needsOcrPages:
+      "Soubor {path} obsahuje naskenované stránky ({pages} z {pageCount}), které vyžadují OCR. Aplikace OCR nepodporuje, proto soubor nebyl převeden vůbec, aby výstup nebyl neúplný.",
     conversionFailed: "Konverze souboru {path} selhala: {detail}",
     writeFailed: "Nepodařilo se uložit {path}: {detail}",
     internal: "Interní chyba: {detail}",

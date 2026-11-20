@@ -38,6 +38,10 @@ export default {
       "Unsupported extension '{extension}' for file {path}. Supported formats are: {supported}.",
     unsupportedExtensionUnknown:
       "File {path} has no extension. Supported formats are: {supported}.",
+    needsOcrAll:
+      "File {path} is scanned (all {pageCount} pages have no text layer) and needs OCR, which this app does not support.",
+    needsOcrPages:
+      "File {path} has scanned pages ({pages} of {pageCount}) that need OCR. This app does not support OCR, so the file was not converted rather than produce incomplete output.",
     conversionFailed: "Failed to convert {path}: {detail}",
     writeFailed: "Failed to save {path}: {detail}",
     internal: "Internal error: {detail}",

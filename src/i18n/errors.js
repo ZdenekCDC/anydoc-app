@@ -23,6 +23,14 @@ export function formatAppError(error) {
             path: error.path,
             supported: error.supported.join(", "),
           });
+    case "needs_ocr":
+      return error.pages.length >= error.page_count
+        ? t("errors.needsOcrAll", { path: error.path, pageCount: error.page_count })
+        : t("errors.needsOcrPages", {
+            path: error.path,
+            pages: pageRanges(error.pages),
+            pageCount: error.page_count,
+          });
     case "conversion_failed":
       return t("errors.conversionFailed", { path: error.path, detail: error.detail });
     case "write_failed":
@@ -32,4 +40,15 @@ export function formatAppError(error) {
     default:
       return JSON.stringify(error);
   }
+}
+
+/** `2, 5-7, 12` from ascending 1-indexed page numbers. */
+function pageRanges(pages) {
+  const ranges = [];
+  for (let i = 0; i < pages.length; i++) {
+    const start = pages[i];
+    while (pages[i + 1] === pages[i] + 1) i++;
+    ranges.push(pages[i] > start ? `${start}-${pages[i]}` : `${start}`);
+  }
+  return ranges.join(", ");
 }
